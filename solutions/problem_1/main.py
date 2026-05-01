@@ -157,8 +157,8 @@ paramGrid = (
     .build()
 )
 
-cv_evaluator = MulticlassClassificationEvaluator(
-    labelCol="label", predictionCol="prediction", metricName="accuracy"
+cv_evaluator = BinaryClassificationEvaluator(
+    labelCol="label", rawPredictionCol="rawPrediction", metricName="areaUnderROC"
 )
 
 cv = CrossValidator(

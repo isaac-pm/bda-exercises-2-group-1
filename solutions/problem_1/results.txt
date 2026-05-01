@@ -1,153 +1,140 @@
-WARNING: Using incubator modules: jdk.incubator.vector
+(env) isaac@fedora:~/Documents/BDA/bda-exercises-2-group-1/solutions/problem_1$ python main.py                                         WARNING: Using incubator modules: jdk.incubator.vector
 Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
-26/04/28 19:58:09 WARN Utils: Your hostname, fedora, resolves to a loopback address: 127.0.0.1; using 10.167.29.2 instead (on interface wlo1)
-26/04/28 19:58:09 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+26/05/01 20:58:13 WARN Utils: Your hostname, fedora, resolves to a loopback address: 127.0.0.1; using 192.168.0.108 instead (on interface wlo1)
+26/05/01 20:58:13 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
 Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
 Setting default log level to "WARN".
 To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
-26/04/28 19:58:10 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-[Stage 0:>                                                          (0 + 7) / 7]
-[Stage 0:========>                                                  (1 + 6) / 7]
-[Stage 3:==========================================>                (5 + 2) / 7]
-[Stage 6:========>                                                  (1 + 6) / 7]
-26/04/28 19:58:23 WARN SparkStringUtils: Truncated the string representation of a plan since it was too large. This behavior can be adjusted by setting 'spark.sql.debug.maxToStringFields'.
-[Stage 92:========>                                                 (1 + 6) / 7]
-[Stage 92:================>                                         (2 + 5) / 7]
-[Stage 107:========>                                                (1 + 6) / 7]
-[Stage 4256:================>                                       (2 + 5) / 7]
-[Stage 8506:========================================>               (5 + 2) / 7]
-[Stage 10716:=======>                                               (1 + 6) / 7]
-[Stage 10716:===============================================>       (6 + 1) / 7]
-[Stage 10717:===============>                                       (2 + 5) / 7]
-[Stage 10731:=======>                                               (1 + 6) / 7]
-[Stage 10742:=======>                                               (1 + 6) / 7]
-[Stage 10742:===============>                                       (2 + 5) / 7]
-[Stage 10760:===============================================>       (6 + 1) / 7]
-/home/isaac/Apps/spark-4.0.2-bin-hadoop3/python/pyspark/sql/context.py:157: FutureWarning: Deprecated in 3.0.0. Use SparkSession.builder.getOrCreate() instead.
-  warnings.warn(
-[Stage 10785:>                                                      (0 + 1) / 1]
-[Stage 10786:=======>                                               (1 + 6) / 7]
-[Stage 10789:===============================================>       (6 + 1) / 7]
-[Stage 10806:=======================>                               (3 + 4) / 7]
-[Stage 12979:=======================>                               (3 + 4) / 7]
-[Stage 13016:=======>                                               (1 + 6) / 7]
-[Stage 13016:===============>                                       (2 + 5) / 7]
-[Stage 13017:===============================>                       (4 + 3) / 7]
-[Stage 13031:=======>                                               (1 + 6) / 7]
-[Stage 13031:===============>                                       (2 + 5) / 7]
-[Stage 13042:===============================>                       (4 + 3) / 7]
-[Stage 13086:=======================================>               (5 + 2) / 7]
-[Stage 13197:=======================>                               (3 + 4) / 7]
-[Stage 13198:===============>                                       (2 + 5) / 7]
-[Stage 13213:=======>                                               (1 + 6) / 7]
-[Stage 13215:===============>                                       (2 + 5) / 7]
-[Stage 13607:===============>                                       (2 + 5) / 7]
-[Stage 13608:=======================>                               (3 + 4) / 7]
-[Stage 13610:=======>                                               (1 + 6) / 7]
-[Stage 13610:===============>                                       (2 + 5) / 7]
-(SparkSession creation) Duration: 3.424 seconds
-(Load CSV) Duration: 0.753 seconds
-(Preprocessing filters) Duration: 0.103 seconds
+26/05/01 20:58:14 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+(SparkSession creation) Duration: 3.922 seconds
+(Load CSV) Duration: 0.807 seconds
+(Preprocessing filters) Duration: 0.094 seconds
+
 ============================================================
 PART (A): Load and preprocess data
 ============================================================
+
 ============================================================
 PART (B): DecisionTree with CrossValidator
 ============================================================
-(Train/Test randomSplit (lazy)) Duration: 0.020 seconds
-(Counting train/test records) Duration: 3.264 seconds
+(Train/Test randomSplit (lazy)) Duration: 0.019 seconds
+(Counting train/test records) Duration: 3.391 seconds                           
+
 (B.1) Training records: 255972
 (B.1) Testing records: 63823
+
 (B.2) Starting 5-fold cross-validation with hyperparameter search...
 (B.2) Parameters: impurity=[entropy, gini], maxDepth=[6, 12, 24], maxBins=[20, 50, 100]
 (B.2) This may take a while...
-(CrossValidator fit (5-fold)) Duration: 389.592 seconds
+(CrossValidator fit (5-fold)) Duration: 404.173 seconds                         
+
 (B.2) Best hyperparameters:
-  impurity: gini
+  impurity: entropy
   maxDepth: 6
-  maxBins: 100
-(Training prediction + eval (AUC/PR)) Duration: 2.013 seconds
+  maxBins: 20
+(Training prediction + eval (AUC/PR)) Duration: 2.003 seconds                   
+
 (B.3) Training metrics (best model):
-  AUC: 0.5886113528992702
-  Area under PR: 0.12017119158743854
-(Save best DecisionTree model) Duration: 0.692 seconds
+  AUC: 0.5906932390608419
+  Area under PR: 0.10738227422616585
+(Save best DecisionTree model) Duration: 1.070 seconds
+
 (B.3) Best DecisionTree model saved to: solutions/problem_1/best_decision_tree_model
-(Test prediction + eval (AUC/PR)) Duration: 1.389 seconds
+(Test prediction + eval (AUC/PR)) Duration: 1.339 seconds
+
 (B.4) Test set metrics (best model, 20% split):
-  AUC: 0.5953263744217613
-  Area under PR: 0.12437540957275602
-(Test MulticlassMetrics computation) Duration: 2.034 seconds
+  AUC: 0.5911628037887037
+  Area under PR: 0.10939313564811196
+/home/isaac/Apps/spark-4.0.2-bin-hadoop3/python/pyspark/sql/context.py:157: FutureWarning: Deprecated in 3.0.0. Use SparkSession.builder.getOrCreate() instead.
+  warnings.warn(
+(Test MulticlassMetrics computation) Duration: 2.063 seconds                    
+
 (B.4) Per-label metrics on test set (MulticlassMetrics):
   Label 1 (HeartDisease=Yes):
-    Precision: 0.5812
-    Recall: 0.0524
+    Precision: 0.5619
+    Recall: 0.0459
   Label 0 (HeartDisease=No):
-    Precision: 0.9172
-    Recall: 0.9964
-  Overall Accuracy: 0.9146
-(Test BinaryClassificationMetrics computation) Duration: 0.289 seconds
-  AUC (BinaryClassificationMetrics): 0.5244
-  Area under PR (BinaryClassificationMetrics): 0.3469
+    Precision: 0.9167
+    Recall: 0.9966
+  Overall Accuracy: 0.9142
+(Test BinaryClassificationMetrics computation) Duration: 0.316 seconds
+  AUC (BinaryClassificationMetrics): 0.5213                                     
+  Area under PR (BinaryClassificationMetrics): 0.3352
+
 ============================================================
 PART (C): TrainValidationSplit vs CrossValidator Comparison
 ============================================================
+
 (C.1) Reusing 80/20 split from Part B Step (B.1)
+
 (C.2) Starting TrainValidationSplit with hyperparameter search...
 (C.2) Parameters: impurity=[entropy, gini], maxDepth=[6,12,24], maxBins=[20,50,100]
 (C.2) trainRatio=0.8 (80% of training data for fitting, 20% for validation)
-(TrainValidationSplit fit) Duration: 83.043 seconds
+
+(TrainValidationSplit fit) Duration: 86.638 seconds                             
+
 (C.2) Best hyperparameters (TrainValidationSplit):
-  impurity: gini
+  impurity: entropy
   maxDepth: 6
-  maxBins: 100
-(TVS training prediction + eval) Duration: 1.734 seconds
+  maxBins: 20
+(TVS training prediction + eval) Duration: 1.354 seconds
+
 (C.3) Training metrics (TrainValidationSplit best model):
-  AUC: 0.5886
-  Area under PR: 0.1202
-(Save TVS best DecisionTree model) Duration: 0.181 seconds
+  AUC: 0.5907
+  Area under PR: 0.1074
+(Save TVS best DecisionTree model) Duration: 0.167 seconds
 (C.3) Best DecisionTree model (TrainValidationSplit) saved to: best_decision_tree_model_tvs
-(TVS test prediction + eval) Duration: 1.282 seconds
+(TVS test prediction + eval) Duration: 1.306 seconds
+
 (C.4) Test set metrics (TrainValidationSplit, 20% split):
-  AUC: 0.5953
-  Area under PR: 0.1244
-(TVS MulticlassMetrics computation) Duration: 1.130 seconds
+  AUC: 0.5912
+  Area under PR: 0.1094
+(TVS MulticlassMetrics computation) Duration: 0.856 seconds                     
+
 (C.4) Per-label metrics on test set (TrainValidationSplit, MulticlassMetrics):
   Label 1 (HeartDisease=Yes):
-    Precision: 0.5812
-    Recall: 0.0524
+    Precision: 0.5619
+    Recall: 0.0459
   Label 0 (HeartDisease=No):
-    Precision: 0.9172
-    Recall: 0.9964
-  Overall Accuracy: 0.9146
-(TVS BinaryClassificationMetrics computation) Duration: 0.260 seconds
-  AUC (BinaryClassificationMetrics): 0.5244
-  Area under PR (BinaryClassificationMetrics): 0.3469
+    Precision: 0.9167
+    Recall: 0.9966
+  Overall Accuracy: 0.9142
+(TVS BinaryClassificationMetrics computation) Duration: 0.231 seconds
+  AUC (BinaryClassificationMetrics): 0.5213
+  Area under PR (BinaryClassificationMetrics): 0.3352
+
 ============================================================
 PART (D): Target=AgeCategory, RandomForest, MulticlassMetrics
 ============================================================
+
 (D.1) Creating 80/20 split for AgeCategory target...
 (AgeCategory Train/Test randomSplit (lazy)) Duration: 0.003 seconds
-(Counting AgeCategory train/test records) Duration: 0.880 seconds
+(Counting AgeCategory train/test records) Duration: 0.921 seconds
 (D.1) Training records: 255972
 (D.1) Testing records: 63823
+
 (D.2) Training DecisionTree for AgeCategory target...
-(DecisionTree (AgeCategory) fit) Duration: 10.297 seconds
-(DecisionTree (AgeCategory) transform) Duration: 0.130 seconds
-(DecisionTree (AgeCategory) MulticlassMetrics) Duration: 1.122 seconds
+(DecisionTree (AgeCategory) fit) Duration: 10.984 seconds                       
+(DecisionTree (AgeCategory) transform) Duration: 0.093 seconds
+(DecisionTree (AgeCategory) MulticlassMetrics) Duration: 1.113 seconds          
+
 (D.2) DecisionTree test metrics (AgeCategory, MulticlassMetrics):
-  Accuracy: 0.1573
-  Weighted Precision: 0.1342
-  Weighted Recall: 0.1573
+  Accuracy: 0.1572
+  Weighted Precision: 0.1329
+  Weighted Recall: 0.1572
+
 (D.3) Training RandomForest with hyperparameter tuning for AgeCategory target...
 (D.3) Starting TrainValidationSplit with numTrees=[5, 10, 20]...
-(RandomForest TrainValidationSplit fit) Duration: 26.549 seconds
+(RandomForest TrainValidationSplit fit) Duration: 29.479 seconds                
 (D.3) Best numTrees: 20
-(RandomForest transform) Duration: 0.068 seconds
-(RandomForest MulticlassMetrics) Duration: 1.015 seconds
+(RandomForest transform) Duration: 0.079 seconds
+(RandomForest MulticlassMetrics) Duration: 1.109 seconds                        
+
 (D.3) RandomForest test metrics (AgeCategory, MulticlassMetrics):
-  Accuracy: 0.1648
-  Weighted Precision: 0.1230
-  Weighted Recall: 0.1648
+  Accuracy: 0.1641
+  Weighted Precision: 0.1510
+  Weighted Recall: 0.1641
+
 (D.4) Model Comparison Summary (AgeCategory target, full dataset):
-  DecisionTree  - Accuracy: 0.1573, Precision: 0.1342, Recall: 0.1573
-  RandomForest  - Accuracy: 0.1648, Precision: 0.1230, Recall: 0.1648 (best numTrees=20)
+  DecisionTree  - Accuracy: 0.1572, Precision: 0.1329, Recall: 0.1572
+  RandomForest  - Accuracy: 0.1641, Precision: 0.1510, Recall: 0.1641 (best numTrees=20)
