@@ -7,7 +7,12 @@ from pyspark.sql.functions import col
 
 from pyspark.ml import Pipeline
 from pyspark.ml.feature import StringIndexer, VectorAssembler
-from pyspark.ml.classification import DecisionTreeClassifier, RandomForestClassifier
+from pyspark.ml.classification import (
+    DecisionTreeClassifier,
+    GBTClassifier,
+    OneVsRest,
+    RandomForestClassifier,
+)
 from pyspark.ml.evaluation import (
     BinaryClassificationEvaluator,
     MulticlassClassificationEvaluator,
@@ -157,6 +162,9 @@ paramGrid = (
     .build()
 )
 
+# CrossValidator requires a pyspark.ml Evaluator. We use
+# BinaryClassificationEvaluator(metricName="areaUnderROC"), which is equivalent
+# to the areaUnderROC metric from pyspark.mllib.evaluation.BinaryClassificationMetrics.
 cv_evaluator = BinaryClassificationEvaluator(
     labelCol="label", rawPredictionCol="rawPrediction", metricName="areaUnderROC"
 )
@@ -195,20 +203,14 @@ print(f"  maxBins: {best_dt_model.getMaxBins()}")
 train_auc_evaluator = BinaryClassificationEvaluator(
     labelCol="label", rawPredictionCol="rawPrediction", metricName="areaUnderROC"
 )
-train_pr_evaluator = BinaryClassificationEvaluator(
-    labelCol="label", rawPredictionCol="rawPrediction", metricName="areaUnderPR"
-)
-
 t0 = time.perf_counter()
 train_predictions = best_model.transform(train_data)
 train_auc = train_auc_evaluator.evaluate(train_predictions)
-train_pr = train_pr_evaluator.evaluate(train_predictions)
 t1 = time.perf_counter()
-print_duration("Training prediction + eval (AUC/PR)", t0, t1)
+print_duration("Training prediction + eval (AUC)", t0, t1)
 
 print(f"\n(B.3) Training metrics (best model):")
 print(f"  AUC: {train_auc}")
-print(f"  Area under PR: {train_pr}")
 
 # Save the best DecisionTree model
 t0 = time.perf_counter()
@@ -225,13 +227,11 @@ print(
 t0 = time.perf_counter()
 test_predictions = best_model.transform(test_data)
 test_auc = train_auc_evaluator.evaluate(test_predictions)
-test_pr = train_pr_evaluator.evaluate(test_predictions)
 t1 = time.perf_counter()
 print_duration("Test prediction + eval (AUC/PR)", t0, t1)
 
 print(f"\n(B.4) Test set metrics (best model, 20% split):")
 print(f"  AUC: {test_auc}")
-print(f"  Area under PR: {test_pr}")
 
 # Compute per-label precision, recall, accuracy using MulticlassMetrics
 t0 = time.perf_counter()
@@ -277,6 +277,9 @@ print("\n(C.1) Reusing 80/20 split from Part B Step (B.1)")
 
 # ----------------------------------------------------------------
 # Step C.2: Replace CrossValidator with TrainValidationSplit (trainRatio=0.8)
+# TrainValidationSplit requires a pyspark.ml Evaluator. We use
+# BinaryClassificationEvaluator(metricName="areaUnderROC"), which is equivalent
+# to the areaUnderROC metric from pyspark.mllib.evaluation.BinaryClassificationMetrics.
 tvs = TrainValidationSplit(
     estimator=pipeline,
     estimatorParamMaps=paramGrid,
@@ -309,13 +312,11 @@ print(f"  maxBins: {best_dt_model_c.getMaxBins()}")
 t0 = time.perf_counter()
 train_predictions_c = best_model_c.transform(train_data)
 train_auc_c = train_auc_evaluator.evaluate(train_predictions_c)
-train_pr_c = train_pr_evaluator.evaluate(train_predictions_c)
 t1 = time.perf_counter()
 print_duration("TVS training prediction + eval", t0, t1)
 
 print(f"\n(C.3) Training metrics (TrainValidationSplit best model):")
 print(f"  AUC: {train_auc_c:.4f}")
-print(f"  Area under PR: {train_pr_c:.4f}")
 
 # Save best TVS model
 t0 = time.perf_counter()
@@ -331,13 +332,11 @@ print(
 t0 = time.perf_counter()
 test_predictions_c = best_model_c.transform(test_data)
 test_auc_c = train_auc_evaluator.evaluate(test_predictions_c)
-test_pr_c = train_pr_evaluator.evaluate(test_predictions_c)
 t1 = time.perf_counter()
 print_duration("TVS test prediction + eval", t0, t1)
 
 print(f"\n(C.4) Test set metrics (TrainValidationSplit, 20% split):")
 print(f"  AUC: {test_auc_c:.4f}")
-print(f"  Area under PR: {test_pr_c:.4f}")
 
 # Per-label precision, recall, accuracy using MulticlassMetrics
 t0 = time.perf_counter()
@@ -363,6 +362,20 @@ print(f"  Label 0 (HeartDisease=No):")
 print(f"    Precision: {precision_0_c:.4f}")
 print(f"    Recall: {recall_0_c:.4f}")
 print(f"  Overall Accuracy: {accuracy_c:.4f}")
+
+print("\n(C.5) Comparison: CrossValidator (Part B) vs TrainValidationSplit (Part C)")
+print(f"  Metric           | CrossValidator | TrainValidationSplit")
+print(f"  -----------------|----------------|---------------------")
+print(f"  Accuracy         | {accuracy:.4f}         | {accuracy_c:.4f}")
+print(f"  Precision (Yes)  | {precision_1:.4f}         | {precision_1_c:.4f}")
+print(f"  Recall    (Yes)  | {recall_1:.4f}         | {recall_1_c:.4f}")
+print(f"  Precision (No)   | {precision_0:.4f}         | {precision_0_c:.4f}")
+print(f"  Recall    (No)   | {recall_0:.4f}         | {recall_0_c:.4f}")
+print(f"  Best impurity    | {best_dt_model.getImpurity()}         | {best_dt_model_c.getImpurity()}")
+print(f"  Best maxDepth    | {best_dt_model.getMaxDepth()}         | {best_dt_model_c.getMaxDepth()}")
+print(f"  Best maxBins     | {best_dt_model.getMaxBins()}         | {best_dt_model_c.getMaxBins()}")
+print("  Note: CrossValidator uses 5-fold CV (more reliable, slower).")
+print("  TrainValidationSplit uses a single 80/20 split (faster, less stable).")
 
 t0 = time.perf_counter()
 bc_metrics_c = BinaryClassificationMetrics(prediction_label_rdd_c)
@@ -433,21 +446,22 @@ assembler_d = VectorAssembler(
 )
 
 # ----------------------------------------------------------------
-# Step D.2: Train and evaluate DecisionTree for AgeCategory
+# Step D.2: Train and evaluate GradientBoostedTrees (OvR) for AgeCategory
 
-print("\n(D.2) Training DecisionTree for AgeCategory target...")
-dt_d = DecisionTreeClassifier(
-    labelCol="label", featuresCol="features", impurity="gini", maxDepth=6, maxBins=20
+print("\n(D.2) Training GradientBoostedTrees (OvR) for AgeCategory target...")
+dt_d = GBTClassifier(labelCol="label", featuresCol="features", maxDepth=6, maxIter=10)
+ovr_gbt = OneVsRest(classifier=dt_d)
+pipeline_dt = Pipeline(
+    stages=string_indexers_d + [label_indexer_d, assembler_d, ovr_gbt]
 )
-pipeline_dt = Pipeline(stages=string_indexers_d + [label_indexer_d, assembler_d, dt_d])
 t0 = time.perf_counter()
 model_dt = pipeline_dt.fit(train_data_d)
 t1 = time.perf_counter()
-print_duration("DecisionTree (AgeCategory) fit", t0, t1)
+print_duration("GradientBoostedTrees (AgeCategory) fit", t0, t1)
 t0 = time.perf_counter()
 pred_dt = model_dt.transform(test_data_d)
 t1 = time.perf_counter()
-print_duration("DecisionTree (AgeCategory) transform", t0, t1)
+print_duration("GradientBoostedTrees (AgeCategory) transform", t0, t1)
 
 # Use MulticlassMetrics for evaluation
 
@@ -460,15 +474,15 @@ acc_dt = metrics_dt.accuracy
 prec_dt = metrics_dt.weightedPrecision
 rec_dt = metrics_dt.weightedRecall
 t1 = time.perf_counter()
-print_duration("DecisionTree (AgeCategory) MulticlassMetrics", t0, t1)
+print_duration("GradientBoostedTrees (AgeCategory) MulticlassMetrics", t0, t1)
 
-print(f"\n(D.2) DecisionTree test metrics (AgeCategory, MulticlassMetrics):")
+print(f"\n(D.2) GradientBoostedTrees test metrics (AgeCategory, MulticlassMetrics):")
 print(f"  Accuracy: {acc_dt:.4f}")
 print(f"  Weighted Precision: {prec_dt:.4f}")
 print(f"  Weighted Recall: {rec_dt:.4f}")
 
 # ----------------------------------------------------------------
-# Step D.3: RandomForest with hyperparameter tuning (numTrees=5,10,20)
+# Step D.3: RandomForest with hyperparameter tuning (numTrees, maxDepth, maxBins, impurity)
 print(
     "\n(D.3) Training RandomForest with hyperparameter tuning for AgeCategory target..."
 )
@@ -476,38 +490,52 @@ print(
 rf_d = RandomForestClassifier(
     labelCol="label",
     featuresCol="features",
-    impurity="gini",
-    maxDepth=6,
-    maxBins=20,
 )
 
 pipeline_rf = Pipeline(stages=string_indexers_d + [label_indexer_d, assembler_d, rf_d])
 
-paramGrid_rf = ParamGridBuilder().addGrid(rf_d.numTrees, [5, 10, 20]).build()
-
-# Use MulticlassClassificationEvaluator for tuning
-multiclass_eval = MulticlassClassificationEvaluator(
-    labelCol="label", predictionCol="prediction", metricName="accuracy"
+paramGrid_builder_rf = (
+    ParamGridBuilder()
+    .addGrid(rf_d.numTrees, [5, 10, 20])
+    .addGrid(rf_d.maxDepth, [6, 12, 24])
+    .addGrid(rf_d.maxBins, [20, 50, 100])
 )
 
-tvs_rf = TrainValidationSplit(
+# RandomForest in Spark supports impurity=[gini, entropy].
+paramGrid_rf = paramGrid_builder_rf.addGrid(rf_d.impurity, ["gini", "entropy"]).build()
+
+# Use MulticlassClassificationEvaluator for tuning
+multiclass_cv_eval = MulticlassClassificationEvaluator(
+    labelCol="label",
+    predictionCol="prediction",
+    metricName="accuracy",
+    # Note: equivalent to MulticlassMetrics.accuracy; ml API required by CrossValidator
+)
+
+cv_rf = CrossValidator(
     estimator=pipeline_rf,
     estimatorParamMaps=paramGrid_rf,
-    evaluator=multiclass_eval,
-    trainRatio=0.8,
+    evaluator=multiclass_cv_eval,
+    numFolds=5,
     seed=42,
 )
 
-print("(D.3) Starting TrainValidationSplit with numTrees=[5, 10, 20]...")
+print(
+    "(D.3) Starting CrossValidator with numTrees=[5,10,20], "
+    "maxDepth=[6,12,24], maxBins=[20,50,100], impurity=[gini,entropy]..."
+)
 t0 = time.perf_counter()
-tvs_rf_model = tvs_rf.fit(train_data_d)
+cv_rf_model = cv_rf.fit(train_data_d)
 t1 = time.perf_counter()
-print_duration("RandomForest TrainValidationSplit fit", t0, t1)
+print_duration("RandomForest CrossValidator fit", t0, t1)
 
-best_rf_model = tvs_rf_model.bestModel
+best_rf_model = cv_rf_model.bestModel
 best_rf_stage = best_rf_model.stages[-1]
 best_num_trees = best_rf_stage.getNumTrees
 print(f"(D.3) Best numTrees: {best_num_trees}")
+print(f"(D.3) Best maxDepth: {best_rf_stage.getMaxDepth()}")
+print(f"(D.3) Best maxBins: {best_rf_stage.getMaxBins()}")
+print(f"(D.3) Best impurity: {best_rf_stage.getImpurity()}")
 
 t0 = time.perf_counter()
 pred_rf = best_rf_model.transform(test_data_d)
@@ -527,18 +555,40 @@ t1 = time.perf_counter()
 print_duration("RandomForest MulticlassMetrics", t0, t1)
 
 print(f"\n(D.3) RandomForest test metrics (AgeCategory, MulticlassMetrics):")
+labels_rf = sorted(
+    prediction_label_rdd_rf.map(lambda x: x[1]).distinct().collect()
+)
+for label in labels_rf:
+    print(f"  Label {int(label)}:")
+    print(f"    Precision: {metrics_rf.precision(label):.4f}")
+    print(f"    Recall: {metrics_rf.recall(label):.4f}")
 print(f"  Accuracy: {acc_rf:.4f}")
 print(f"  Weighted Precision: {prec_rf:.4f}")
 print(f"  Weighted Recall: {rec_rf:.4f}")
+
+# Save best RandomForest model
+t0 = time.perf_counter()
+best_rf_stage.write().overwrite().save(str(MODEL_PATH_RF))
+t1 = time.perf_counter()
+print_duration("Save best RandomForest model", t0, t1)
+print(
+    "(D.3) Best RandomForest model saved to: solutions/problem_1/best_random_forest_model"
+)
 
 # ----------------------------------------------------------------
 # Step D.4: Model comparison summary
 print(f"\n(D.4) Model Comparison Summary (AgeCategory target, full dataset):")
 print(
-    f"  DecisionTree  - Accuracy: {acc_dt:.4f}, Precision: {prec_dt:.4f}, Recall: {rec_dt:.4f}"
+    f"  GradientBoostedTrees (OvR)  - Accuracy: {acc_dt:.4f}, Precision: {prec_dt:.4f}, Recall: {rec_dt:.4f}"
 )
 print(
-    f"  RandomForest  - Accuracy: {acc_rf:.4f}, Precision: {prec_rf:.4f}, Recall: {rec_rf:.4f} (best numTrees={best_num_trees})"
+    f"  RandomForest               - Accuracy: {acc_rf:.4f}, Precision: {prec_rf:.4f}, Recall: {rec_rf:.4f} (best numTrees={best_num_trees})"
 )
+print("\n(D.5) Comparison: GBT (OvR) vs RandomForest")
+print(f"  Metric           | GBT (OvR)       | RandomForest")
+print(f"  -----------------|-----------------|---------------------")
+print(f"  Accuracy         | {acc_dt:.4f}         | {acc_rf:.4f}")
+print(f"  Weighted Precision | {prec_dt:.4f}         | {prec_rf:.4f}")
+print(f"  Weighted Recall    | {rec_dt:.4f}         | {rec_rf:.4f}")
 
 spark.stop()

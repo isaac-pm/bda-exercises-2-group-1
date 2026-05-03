@@ -5,6 +5,9 @@
 Set up local Spark and Python paths before execution:
 
 ```bash
+cd solutions/problem_1/
+source env/bin/activate # or python -m venv env; source env/bin/activate; pip install -r requirements.txt
+
 export SPARK_HOME=/home/isaac/Apps/spark-4.0.2-bin-hadoop3
 export PYTHONPATH=$SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-src.zip:$PYTHONPATH
 ```

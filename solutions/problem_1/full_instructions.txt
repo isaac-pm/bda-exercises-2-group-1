@@ -1,0 +1,62 @@
+Here are the expanded, completely self-contained instructions for each step. By eliminating all cross-references, each of these blocks can now be handed to someone independently, and they will have all the context and specific parameters needed to complete the task.
+
+### **Step (a): Data Loading and Schema Definition**
+**Context:** You are working with the “Key Indicators of Heart Disease” dataset (available on Kaggle or Moodle). This dataset contains 18 variables (9 booleans, 5 strings, and 4 decimals) related to heart disease indicators for approximately 320,000 U.S. patients.
+
+**Task:**
+1.  **Load the Data:** Load the entire dataset (in CSV format) into a Spark DataFrame. You can do this in one of two ways:
+    *   Directly read the CSV using `spark.read.option("inferSchema", true).option("header", true).csv(...)`.
+    *   Load an RDD first and convert it to a DataFrame using `spark.createDataFrame(rdd).toDF(...)`.
+2.  **Define the Schema:** Ensure the resulting DataFrame has a proper schema with meaningful attribute names. If you use the RDD method, explicitly apply the schema by either providing the attribute names directly in the `.toDF(...)` method, or by defining a new `StructType` with corresponding `StructField` entries that specify the correct attribute names and data types (refer to the CSV header for this information).
+3.  **Target Label:** Keep in mind that the first variable, `HeartDisease` (Boolean: Yes/No), will serve as the target label for future supervised classification tasks.
+
+---
+
+### **Step (b): Decision Tree Classification with Cross-Validation**
+**Context:** You are working with the “Key Indicators of Heart Disease” dataset, which contains 18 variables for ~320,000 patients. The target label for classification is the Boolean variable `HeartDisease` (Yes/No).
+
+**Task:**
+1.  **Data Split:** Load the dataset into a Spark DataFrame and create a random split, dividing the data into 80% for training and 20% for testing.
+2.  **ML Pipeline:** Define a basic Spark ML Pipeline containing the necessary stages to train a **DecisionTree** classification model. Use the 80% data split as your training data.
+3.  **Hyper-parameter Tuning Setup:** Implement an automatic hyper-parameter tuning process using Spark’s `CrossValidator` API. Configure a 5-fold cross-validation loop over the following fixed grid of hyper-parameters for the DecisionTree:
+    *   `impurity`: "entropy", "gini"
+    *   `depth`: 6, 12, 24
+    *   `bins`: 20, 50, 100
+4.  **Model Evaluation and Training:** Configure the cross-validator to use Spark's `BinaryClassificationMetrics` API to measure the average accuracy over the two possible labels of `HeartDisease` during the cross-validation iterations. Fit this cross-validated model to your training data to find the best hyper-parameter combination (Note: this is computationally expensive).
+5.  **Save Model:** Save the best DecisionTree model obtained from the cross-validation process into a file.
+6.  **Final Testing:** Evaluate your best model (with the optimal hyper-parameters) on the 20% test split you created in step 1. Use the `BinaryClassificationMetrics` API to measure and output the **precision**, **recall**, and **accuracy** over the two possible `HeartDisease` labels.
+
+---
+
+### **Step (c): Decision Tree Classification with Train-Validation Split**
+**Context:** You are working with the “Key Indicators of Heart Disease” dataset, which contains 18 variables for ~320,000 patients. The target label for classification is the Boolean variable `HeartDisease` (Yes/No).
+
+**Task:**
+1.  **Data Split:** Load the dataset into a Spark DataFrame and create a random split, dividing the data into 80% for training and 20% for testing.
+2.  **ML Pipeline:** Define a basic Spark ML Pipeline containing the necessary stages to train a **DecisionTree** classification model. Use the 80% data split as your training data.
+3.  **Hyper-parameter Tuning Setup:** Implement an automatic hyper-parameter tuning process. Instead of cross-validation, use Spark's `TrainValidationSplit` API. Set the `trainRatio` to 0.8. Configure it to search over the following fixed grid of hyper-parameters for the DecisionTree:
+    *   `impurity`: "entropy", "gini"
+    *   `depth`: 6, 12, 24
+    *   `bins`: 20, 50, 100
+4.  **Model Evaluation and Training:** Configure the `TrainValidationSplit` to use Spark's `BinaryClassificationMetrics` API to measure the average accuracy over the two possible labels of `HeartDisease`. Fit this tuning model to your training data to find the best hyper-parameter combination.
+5.  **Save Model:** Save the best DecisionTree model obtained from this tuning process into a file.
+6.  **Final Testing:** Evaluate your best model on the 20% test split you created in step 1. Use the `BinaryClassificationMetrics` API to measure and output the **precision**, **recall**, and **accuracy** over the two possible `HeartDisease` labels.
+7.  **Comparison:** Compare the metrics and performance results obtained from this `TrainValidationSplit` approach with those that would be obtained using a 5-fold `CrossValidator` approach.
+
+---
+
+### **Step (d): Random Forest Multi-Class Classification**
+**Context:** You are working with the “Key Indicators of Heart Disease” dataset, which contains 18 variables for ~320,000 patients. For this task, the target label for classification is the string variable **`AgeCategory`** (which requires multi-class evaluation).
+
+**Task:**
+1.  **Data Split:** Load the dataset into a Spark DataFrame and create a random split, dividing the data into 80% for training and 20% for testing.
+2.  **ML Pipeline:** Define a basic Spark ML Pipeline containing the necessary stages to train a **RandomForest** classification model (ensure string labels are appropriately indexed for multi-class classification). Use the 80% data split as your training data.
+3.  **Hyper-parameter Tuning Setup:** Implement an automatic hyper-parameter tuning process using Spark’s `CrossValidator` API. Configure a 5-fold cross-validation loop over the following grid of hyper-parameters for the RandomForest:
+    *   `impurity`: "entropy", "gini"
+    *   `depth`: 6, 12, 24
+    *   `bins`: 20, 50, 100
+    *   `numTrees`: 5, 10, 20
+4.  **Model Evaluation and Training:** Because `AgeCategory` has multiple classes, configure the cross-validator to use Spark's **`MulticlassMetrics`** API (rather than BinaryClassificationMetrics) to evaluate performance during the cross-validation iterations. Fit this cross-validated model to your training data using the "automatic" training mode to find the optimal number of trees and best hyper-parameter combination.
+5.  **Save Model:** Save the best RandomForest model obtained from the cross-validation process into a file.
+6.  **Final Testing:** Evaluate your best model on the 20% test split you created in step 1. Use the `MulticlassMetrics` API to measure the model's overall performance across the `AgeCategory` labels.
+7.  **Optional Comparison:** Optionally, train a `GradientBoostedTree` classifier in Spark using a similar methodology and compare its performance against your tuned RandomForest classifier.
