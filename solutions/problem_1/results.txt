@@ -1,54 +1,40 @@
-(env) isaac@fedora:~/Documents/BDA/bda-exercises-2-group-1/solutions/problem_1$ python main.py                                         WARNING: Using incubator modules: jdk.incubator.vector
+WARNING: Using incubator modules: jdk.incubator.vector
 Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
-26/05/01 20:58:13 WARN Utils: Your hostname, fedora, resolves to a loopback address: 127.0.0.1; using 192.168.0.108 instead (on interface wlo1)
-26/05/01 20:58:13 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
 Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
 Setting default log level to "WARN".
 To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
-26/05/01 20:58:14 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-(SparkSession creation) Duration: 3.922 seconds
-(Load CSV) Duration: 0.807 seconds
-(Preprocessing filters) Duration: 0.094 seconds
-
+/home/isaac/Apps/spark-4.0.2-bin-hadoop3/python/pyspark/sql/context.py:157: FutureWarning: Deprecated in 3.0.0. Use SparkSession.builder.getOrCreate() instead.
+  warnings.warn(
+(SparkSession creation) Duration: 4.353 seconds
+(Load CSV) Duration: 1.277 seconds
+(Preprocessing filters) Duration: 0.152 seconds
 ============================================================
 PART (A): Load and preprocess data
 ============================================================
-
 ============================================================
 PART (B): DecisionTree with CrossValidator
 ============================================================
-(Train/Test randomSplit (lazy)) Duration: 0.019 seconds
-(Counting train/test records) Duration: 3.391 seconds                           
-
+(Train/Test randomSplit (lazy)) Duration: 0.032 seconds
+(Counting train/test records) Duration: 4.611 seconds
 (B.1) Training records: 255972
 (B.1) Testing records: 63823
-
 (B.2) Starting 5-fold cross-validation with hyperparameter search...
 (B.2) Parameters: impurity=[entropy, gini], maxDepth=[6, 12, 24], maxBins=[20, 50, 100]
 (B.2) This may take a while...
-(CrossValidator fit (5-fold)) Duration: 404.173 seconds                         
-
+(CrossValidator fit (5-fold)) Duration: 472.912 seconds
 (B.2) Best hyperparameters:
   impurity: entropy
   maxDepth: 6
   maxBins: 20
-(Training prediction + eval (AUC/PR)) Duration: 2.003 seconds                   
-
+(Training prediction + eval (AUC)) Duration: 1.266 seconds
 (B.3) Training metrics (best model):
   AUC: 0.5906932390608419
-  Area under PR: 0.10738227422616585
-(Save best DecisionTree model) Duration: 1.070 seconds
-
+(Save best DecisionTree model) Duration: 1.074 seconds
 (B.3) Best DecisionTree model saved to: solutions/problem_1/best_decision_tree_model
-(Test prediction + eval (AUC/PR)) Duration: 1.339 seconds
-
+(Test prediction + eval (AUC/PR)) Duration: 0.919 seconds
 (B.4) Test set metrics (best model, 20% split):
   AUC: 0.5911628037887037
-  Area under PR: 0.10939313564811196
-/home/isaac/Apps/spark-4.0.2-bin-hadoop3/python/pyspark/sql/context.py:157: FutureWarning: Deprecated in 3.0.0. Use SparkSession.builder.getOrCreate() instead.
-  warnings.warn(
-(Test MulticlassMetrics computation) Duration: 2.063 seconds                    
-
+(Test MulticlassMetrics computation) Duration: 2.620 seconds
 (B.4) Per-label metrics on test set (MulticlassMetrics):
   Label 1 (HeartDisease=Yes):
     Precision: 0.5619
@@ -57,40 +43,30 @@ PART (B): DecisionTree with CrossValidator
     Precision: 0.9167
     Recall: 0.9966
   Overall Accuracy: 0.9142
-(Test BinaryClassificationMetrics computation) Duration: 0.316 seconds
-  AUC (BinaryClassificationMetrics): 0.5213                                     
+(Test BinaryClassificationMetrics computation) Duration: 0.409 seconds
+  AUC (BinaryClassificationMetrics): 0.5213
   Area under PR (BinaryClassificationMetrics): 0.3352
-
 ============================================================
 PART (C): TrainValidationSplit vs CrossValidator Comparison
 ============================================================
-
 (C.1) Reusing 80/20 split from Part B Step (B.1)
-
 (C.2) Starting TrainValidationSplit with hyperparameter search...
 (C.2) Parameters: impurity=[entropy, gini], maxDepth=[6,12,24], maxBins=[20,50,100]
 (C.2) trainRatio=0.8 (80% of training data for fitting, 20% for validation)
-
-(TrainValidationSplit fit) Duration: 86.638 seconds                             
-
+(TrainValidationSplit fit) Duration: 106.708 seconds
 (C.2) Best hyperparameters (TrainValidationSplit):
   impurity: entropy
   maxDepth: 6
   maxBins: 20
-(TVS training prediction + eval) Duration: 1.354 seconds
-
+(TVS training prediction + eval) Duration: 1.126 seconds
 (C.3) Training metrics (TrainValidationSplit best model):
   AUC: 0.5907
-  Area under PR: 0.1074
-(Save TVS best DecisionTree model) Duration: 0.167 seconds
+(Save TVS best DecisionTree model) Duration: 0.190 seconds
 (C.3) Best DecisionTree model (TrainValidationSplit) saved to: best_decision_tree_model_tvs
-(TVS test prediction + eval) Duration: 1.306 seconds
-
+(TVS test prediction + eval) Duration: 0.822 seconds
 (C.4) Test set metrics (TrainValidationSplit, 20% split):
   AUC: 0.5912
-  Area under PR: 0.1094
-(TVS MulticlassMetrics computation) Duration: 0.856 seconds                     
-
+(TVS MulticlassMetrics computation) Duration: 1.245 seconds
 (C.4) Per-label metrics on test set (TrainValidationSplit, MulticlassMetrics):
   Label 1 (HeartDisease=Yes):
     Precision: 0.5619
@@ -99,42 +75,98 @@ PART (C): TrainValidationSplit vs CrossValidator Comparison
     Precision: 0.9167
     Recall: 0.9966
   Overall Accuracy: 0.9142
-(TVS BinaryClassificationMetrics computation) Duration: 0.231 seconds
+(C.5) Comparison: CrossValidator (Part B) vs TrainValidationSplit (Part C)
+  Metric           | CrossValidator | TrainValidationSplit
+  -----------------|----------------|---------------------
+  Accuracy         | 0.9142         | 0.9142
+  Precision (Yes)  | 0.5619         | 0.5619
+  Recall    (Yes)  | 0.0459         | 0.0459
+  Precision (No)   | 0.9167         | 0.9167
+  Recall    (No)   | 0.9966         | 0.9966
+  Best impurity    | entropy         | entropy
+  Best maxDepth    | 6         | 6
+  Best maxBins     | 20         | 20
+  Note: CrossValidator uses 5-fold CV (more reliable, slower).
+  TrainValidationSplit uses a single 80/20 split (faster, less stable).
+(TVS BinaryClassificationMetrics computation) Duration: 0.349 seconds
   AUC (BinaryClassificationMetrics): 0.5213
   Area under PR (BinaryClassificationMetrics): 0.3352
-
 ============================================================
 PART (D): Target=AgeCategory, RandomForest, MulticlassMetrics
 ============================================================
-
 (D.1) Creating 80/20 split for AgeCategory target...
 (AgeCategory Train/Test randomSplit (lazy)) Duration: 0.003 seconds
-(Counting AgeCategory train/test records) Duration: 0.921 seconds
+(Counting AgeCategory train/test records) Duration: 0.972 seconds
 (D.1) Training records: 255972
 (D.1) Testing records: 63823
-
-(D.2) Training DecisionTree for AgeCategory target...
-(DecisionTree (AgeCategory) fit) Duration: 10.984 seconds                       
-(DecisionTree (AgeCategory) transform) Duration: 0.093 seconds
-(DecisionTree (AgeCategory) MulticlassMetrics) Duration: 1.113 seconds          
-
-(D.2) DecisionTree test metrics (AgeCategory, MulticlassMetrics):
-  Accuracy: 0.1572
-  Weighted Precision: 0.1329
-  Weighted Recall: 0.1572
-
+(D.2) Training GradientBoostedTrees (OvR) for AgeCategory target...
+(GradientBoostedTrees (AgeCategory) fit) Duration: 70.190 seconds
+(GradientBoostedTrees (AgeCategory) transform) Duration: 0.751 seconds
+(GradientBoostedTrees (AgeCategory) MulticlassMetrics) Duration: 21.789 seconds
+(D.2) GradientBoostedTrees test metrics (AgeCategory, MulticlassMetrics):
+  Accuracy: 0.1704
+  Weighted Precision: 0.1577
+  Weighted Recall: 0.1704
 (D.3) Training RandomForest with hyperparameter tuning for AgeCategory target...
-(D.3) Starting TrainValidationSplit with numTrees=[5, 10, 20]...
-(RandomForest TrainValidationSplit fit) Duration: 29.479 seconds                
+(D.3) Starting CrossValidator with numTrees=[5,10,20], maxDepth=[6,12,24], maxBins=[20,50,100], impurity=[gini,entropy]...
+(RandomForest CrossValidator fit) Duration: 13106.924 seconds
 (D.3) Best numTrees: 20
-(RandomForest transform) Duration: 0.079 seconds
-(RandomForest MulticlassMetrics) Duration: 1.109 seconds                        
-
+(D.3) Best maxDepth: 12
+(D.3) Best maxBins: 50
+(D.3) Best impurity: gini
+(RandomForest transform) Duration: 0.071 seconds
+(RandomForest MulticlassMetrics) Duration: 2.671 seconds
 (D.3) RandomForest test metrics (AgeCategory, MulticlassMetrics):
-  Accuracy: 0.1641
-  Weighted Precision: 0.1510
-  Weighted Recall: 0.1641
-
+  Label 0:
+    Precision: 0.1486
+    Recall: 0.2810
+  Label 1:
+    Precision: 0.1306
+    Recall: 0.2199
+  Label 2:
+    Precision: 0.1984
+    Recall: 0.1686
+  Label 3:
+    Precision: 0.1417
+    Recall: 0.1402
+  Label 4:
+    Precision: 0.1237
+    Recall: 0.0371
+  Label 5:
+    Precision: 0.3056
+    Recall: 0.4051
+  Label 6:
+    Precision: 0.1322
+    Recall: 0.0122
+  Label 7:
+    Precision: 0.1937
+    Recall: 0.0282
+  Label 8:
+    Precision: 0.2065
+    Recall: 0.6347
+  Label 9:
+    Precision: 0.1228
+    Recall: 0.0603
+  Label 10:
+    Precision: 0.1269
+    Recall: 0.1051
+  Label 11:
+    Precision: 0.1341
+    Recall: 0.0494
+  Label 12:
+    Precision: 0.1302
+    Recall: 0.0063
+  Accuracy: 0.1736
+  Weighted Precision: 0.1616
+  Weighted Recall: 0.1736
+(Save best RandomForest model) Duration: 1.526 seconds
+(D.3) Best RandomForest model saved to: solutions/problem_1/best_random_forest_model
 (D.4) Model Comparison Summary (AgeCategory target, full dataset):
-  DecisionTree  - Accuracy: 0.1572, Precision: 0.1329, Recall: 0.1572
-  RandomForest  - Accuracy: 0.1641, Precision: 0.1510, Recall: 0.1641 (best numTrees=20)
+  GradientBoostedTrees (OvR)  - Accuracy: 0.1704, Precision: 0.1577, Recall: 0.1704
+  RandomForest               - Accuracy: 0.1736, Precision: 0.1616, Recall: 0.1736 (best numTrees=20)
+(D.5) Comparison: GBT (OvR) vs RandomForest
+  Metric           | GBT (OvR)       | RandomForest
+  -----------------|-----------------|---------------------
+  Accuracy         | 0.1704         | 0.1736
+  Weighted Precision | 0.1577         | 0.1616
+  Weighted Recall    | 0.1704         | 0.1736
