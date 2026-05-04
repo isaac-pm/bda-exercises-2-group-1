@@ -1,0 +1,95 @@
+=============================================================================
+BIG DATA ANALYTICS - SUMMER SEMESTER 2026
+Exercise Sheet #2 - Problem 3: Recommender Systems via Matrix Factorization
+=============================================================================
+
+Group ID: 
+
+Student Names: 
+
+Isaac Palma Medina @ isaac.palma.001@student.uni.lu
+José Valdivia Agüero @ jose.valdivia.001@student.uni.lu
+Esteban Leiva Montenegro @ esteban.leiva.001@student.uni.lu
+
+-----------------------------------------------------------------------------
+1. RUNNING INSTRUCTIONS
+-----------------------------------------------------------------------------
+To execute this solution on the IRIS/Aion HPC cluster, run the following commands:
+
+ 1. Connect to the Aion cluster. 
+ 2. Load spark module with module load devel/Spark/3.5.4-foss-2023b-Java-17 
+ 3. Load python module with:  module load lang/Python/3.11.3-GCCcore-12.3.0
+ 4. Create a python env: python -m venv .venvv
+ 5. Activate the python env: source ./.venv/bin/activate
+ 
+
+-----------------------------------------------------------------------------
+2. GENERATIVE AI USAGE DISCLOSURE
+-----------------------------------------------------------------------------
+AI Platform Used: Gemini 3.1 Pro
+
+Prompting Steps Summary:
+- I've Provided the initial script and asked the AI to optimize the cross-validation loop to prevent stack overflows on the Aion cluster.
+- Used AI to debug the 'Detected deadlock' error during ALS training and implement proper RDD checkpointing.
+- Asked for the mathematical formulation to calculate AUC locally to verify Spark's BinaryClassificationMetrics output.
+- Used AI for code/document formatting.
+-----------------------------------------------------------------------------
+3. EXPERIMENTAL RESULTS
+-----------------------------------------------------------------------------
+
+*** PART (A): Initial Model vs. Baseline Evaluation ***
+* Average ALS Model AUC: 0.5593
+* Average Popularity Baseline AUC: 0.5286
+
+*** PART (B): Hyper-Parameter Tuning & Final Evaluation ***
+Best Hyper-Parameters Found (via 5-fold cross-validation):
+* Rank:   10
+* Lambda: 0.01
+* Alpha:  1.0
+
+Final Model Metrics (evaluated on the 20% test split):
+* Test AUC:       0.5836
+* Test Precision: 0.1015
+* Test Recall:    0.0862
+* Test Accuracy:  0.9999
+
+*** PART (C): Personalized Recommendation Evaluation ***
+Target User ID: 9999999
+Added Ratings:  ["daft punk", "metallica", "adele", "linking park", "eminem"] 
+
+Top-25 Recommended Artists for Custom Profile:
+1. Sneaker Pimps (Score: 0.0017)
+2. Eek-a-Mouse (Score: 0.0017)
+3. The Knife (Score: 0.0017)
+4. Mindless Self Indulgence (Score: 0.0017)
+5. bob hund (Score: 0.0016)
+6. Timbuktu (Score: 0.0016)
+7. Bo Kaspers Orkester (Score: 0.0016)
+8. Manu Chao (Score: 0.0015)
+9. Sublime (Score: 0.0015)
+10. Lars Winnerbäck (Score: 0.0015)
+11. Håkan Hellström (Score: 0.0015)
+12. The Skatalites (Score: 0.0015)
+13. Svenska Akademien (Score: 0.0015)
+14. Cornelis Vreeswijk (Score: 0.0015)
+15. Slagsmålsklubben (Score: 0.0015)
+16. Teddybears Sthlm (Score: 0.0014)
+17. Primus (Score: 0.0014)
+18. Imperiet (Score: 0.0014)
+19. Cypress Hill (Score: 0.0014)
+20. The Kristet Utseende (Score: 0.0014)
+21. Basement Jaxx (Score: 0.0014)
+22. KMFDM (Score: 0.0014)
+23. Ani DiFranco (Score: 0.0014)
+24. Anna Ternheim (Score: 0.0014)
+25. Jurassic 5 (Score: 0.0014)
+
+Manual Judgment / Qualitative Evaluation:
+[Write 2-4 sentences manually judging the quality of these recommendations according to your own music taste. Do these suggestions make sense based on the artists you injected into the training set?]
+
+-----------------------------------------------------------------------------
+4. SPARK RUNTIMES
+-----------------------------------------------------------------------------
+* Total execution time: ~862 min
+* Time for Cross-Validation grid search: ~844 min 
+* Time for Final Model Evaluation: ~10 min
