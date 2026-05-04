@@ -3,7 +3,7 @@ BIG DATA ANALYTICS - SUMMER SEMESTER 2026
 Exercise Sheet #2 - Problem 3: Recommender Systems via Matrix Factorization
 =============================================================================
 
-Group ID: 
+Group ID: 1  
 
 Student Names: 
 
@@ -85,8 +85,7 @@ Top-25 Recommended Artists for Custom Profile:
 25. Jurassic 5 (Score: 0.0014)
 
 Manual Judgment / Qualitative Evaluation:
-[Write 2-4 sentences manually judging the quality of these recommendations according to your own music taste. Do these suggestions make sense based on the artists you injected into the training set?]
-
+I know some artists such as Manu Chao, the music are quite similar, the recommendations might vary because I choose artist from diferent genders.  
 -----------------------------------------------------------------------------
 4. SPARK RUNTIMES
 -----------------------------------------------------------------------------
