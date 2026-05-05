@@ -1,6 +1,6 @@
 # Problem 1:
 
-- Models used: Gemini Pro and OpenCode with the BigPickle model.
+- Models used: Gemini Pro and Claude Sonnet 4.6, and OpenCode with the BigPickle model.
 
 ## Main prompting:
 
@@ -14,6 +14,50 @@ Output:
 
 ```
 Your PySpark implementation successfully performs the necessary data splitting, pipeline construction and model tuning, but deliberately and correctly deviates from the technically flawed API instructions in the assignment. The prompt requests the use of BinaryClassificationMetrics and BinaryClassificationEvaluator to extract scalar accuracy, precision, and recall, which is impossible within PySpark's framework. Your workaround using the Multiclass equivalents is the mathematically sound solution. To avoid losing marks due to a strict marking system, keep your current code but explicitly document these PySpark API limitations in your 'Problem 1.txt' submission to justify your programming choices.
+```
+
+To Claude Sonnet 4.6:
+
+```
+According to the instructions and solution attached to Problem 1 of my homework, cross-check the solution and highlight any mistakes. If you find any, please explain them and provide the correct solution.
+```
+
+Output:
+
+```
+Step (a) ✅ Fully Compliant
+
+Schema with all 18 fields, explicit StructType, HeartDisease as target, CSV loaded correctly, null filtering applied. Nothing to fix.
+Step (b) ✅ Now Fully Compliant
+
+The justification comment above cv_evaluator is in place and correctly explains the ml vs mllib API constraint. The final test evaluation reports precision, recall, and accuracy per label via MulticlassMetrics, plus areaUnderROC and areaUnderPR via BinaryClassificationMetrics. All 6 sub-requirements satisfied.
+Step (c) ✅ Now Fully Compliant
+
+The equivalent justification comment is present above the TrainValidationSplit definition. trainRatio=0.8 is set, same hyperparameter grid is used, model is saved, test metrics are reported, and the CV vs TVS comparison table is printed. All 7 sub-requirements satisfied.
+Step (d) ✅ Now Fully Compliant (with one minor code bug to verify)
+
+The DecisionTree baseline is replaced with GBTClassifier wrapped in OneVsRest for multi-class support. Both GBTClassifier and OneVsRest are correctly imported. The RandomForest CV uses the full grid including numTrees, the best model is saved, MulticlassMetrics is used throughout, and the GBT vs RF comparison table is printed at the end.
+
+One thing to verify at runtime: This line uses a property without calling it as a method:
+
+python
+best_num_trees = best_rf_stage.getNumTrees  # ← missing ()
+
+getNumTrees is a method, not a property, in PySpark's RandomForestClassificationModel. It should be:
+
+python
+best_num_trees = best_rf_stage.getNumTrees()
+
+This will silently print the function object reference instead of the integer value in all the comparison print statements.
+Updated Summary
+Step	Status	Remaining Issue
+(a)	✅	None
+(b)	✅	None
+(c)	✅	None
+(d)	⚠️	getNumTrees missing () — fix before running
+
+One-line fix: best_num_trees = best_rf_stage.getNumTrees().
+Prepared using Claude Sonnet 4.6
 ```
 
 To OpenCode with the BigPickle model:
